@@ -9,5 +9,7 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.RUNTIME)
 public @interface RandomValue {
 
-    String[] values();
+    String[] values() default {};
+
+    boolean useClasspathLocatorForValues() default false;
 }

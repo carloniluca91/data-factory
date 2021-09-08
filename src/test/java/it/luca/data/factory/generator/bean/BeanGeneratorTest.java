@@ -24,5 +24,6 @@ class BeanGeneratorTest {
 
         assertThrows(MissingNoArgConstructorException.class, () -> BeanGenerator.generate(AllArgsConstructorBean.class));
         assertThrows(MissingDataAnnotationException.class, () -> BeanGenerator.generate(FieldWithNoAnnotationBean.class));
+        assertDoesNotThrow(() -> BeanGenerator.generate(FieldWithClasspathLocator.class));
     }
 }
