@@ -11,5 +11,5 @@ public @interface RandomValue {
 
     String[] values() default {};
 
-    boolean useClasspathLocatorForValues() default false;
+    boolean useClasspathLocator() default false;
 }

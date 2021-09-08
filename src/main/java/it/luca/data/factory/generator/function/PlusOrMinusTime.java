@@ -5,20 +5,23 @@ import lombok.Getter;
 
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
+import java.time.temporal.TemporalAmount;
+import java.util.function.Function;
 
 @Getter
 @AllArgsConstructor
 public abstract class PlusOrMinusTime implements DataSupplier<LocalDateTime> {
 
     protected final Signum signum;
-    protected final int temporalAmount;
-    protected final ChronoUnit chronoUnit;
+    protected final TimeAmount amount;
 
     @Override
     public LocalDateTime apply() {
 
+        ChronoUnit unit = amount.getChronoUnit();
+        Integer quantity = amount.getQuantity();
         return signum == Signum.MINUS ?
-                LocalDateTime.now().minus(temporalAmount, chronoUnit) :
-                LocalDateTime.now().plus(temporalAmount, chronoUnit);
+                LocalDateTime.now().minus(quantity, unit) :
+                LocalDateTime.now().plus(quantity, unit);
     }
 }

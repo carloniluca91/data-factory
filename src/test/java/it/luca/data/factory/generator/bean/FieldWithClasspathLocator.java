@@ -6,6 +6,6 @@ import lombok.Data;
 @Data
 public class FieldWithClasspathLocator {
 
-    @RandomValue(useClasspathLocatorForValues = true)
+    @RandomValue(useClasspathLocator = true)
     private String codCampo;
 }

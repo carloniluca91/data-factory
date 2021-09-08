@@ -5,19 +5,13 @@ import it.luca.data.factory.generator.function.RandomDateTimeSupplier;
 import it.luca.data.factory.generator.function.RandomNumberSupplier;
 import it.luca.data.factory.generator.function.RandomValueSupplier;
 
-import java.io.BufferedReader;
-import java.io.FileNotFoundException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
-import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.function.BiPredicate;
 import java.util.function.Predicate;
-import java.util.stream.Collectors;
 
 import static it.luca.utils.functional.Optional.isPresent;
 import static it.luca.utils.functional.Stream.anyMatch;
@@ -94,12 +88,10 @@ public class BeanGenerator {
         } else if (isAnnotatedWith.test(RandomNumber.class)) {
             setterObject = new RandomNumberSupplier(field.getAnnotation(RandomNumber.class)).apply();
         } else if (isAnnotatedWith.test(RandomValue.class)) {
-            RandomValue annotation = field.getAnnotation(RandomValue.class);
-            if (annotation.values().length > 0 && !annotation.useClasspathLocatorForValues()) {
-                setterObject = new RandomValueSupplier(field.getAnnotation(RandomValue.class)).apply();
-            } else {
-                setterObject = getRandomValueFromClasspath(tClass, field);
-            }
+            RandomValueSupplier supplier = new RandomValueSupplier(field.getAnnotation(RandomValue.class));
+            setterObject = supplier.mustUseClasspathLocator() ?
+                    supplier.apply(tClass, field):
+                    supplier.apply();
         } else if (isAnnotatedWith.test(RandomBean.class)) {
             setterObject = generate(field.getAnnotation(RandomBean.class).beanClass());
         } else if (isAnnotatedWith.test(RandomSequence.class)) {
@@ -112,35 +104,8 @@ public class BeanGenerator {
             }
 
             setterObject = sequence;
-        } else {
-            throw new MissingDataAnnotationException(field);
-        }
+        } else setterObject = null;
 
         return setterObject;
-    }
-
-    /**
-     * Given a {@link Class} and a {@link Field}, attempts to locate file "package/className/fieldName.txt",
-     * pick a random value from it and use it for initializing given {@link Field}
-     * @param tClass class of bean to be generated
-     * @param field {@link Field} to be initialized using output value
-     * @return output value for given {@link Field}
-     * @throws FileNotFoundException if .txt file is not found along classPath
-     */
-
-    private static Object getRandomValueFromClasspath(Class<?> tClass, Field field) throws FileNotFoundException {
-
-        // Retrieve possible values from a file along classPath
-        String fieldName = field.getName();
-        String fileName = tClass.getName().replaceAll("\\.", "/").concat("/").concat(fieldName.concat(".txt"));
-        InputStream stream = BeanGenerator.class.getClassLoader().getResourceAsStream(fileName);
-        if (isPresent(stream)) {
-            // Extract values and choose one of them randomly
-            //noinspection ConstantConditions
-            List<String> values = new BufferedReader(new InputStreamReader(stream, StandardCharsets.UTF_8)).lines().collect(Collectors.toList());
-            return values.get(new Random().nextInt(values.size() + 1));
-        } else {
-            throw new FileNotFoundException(String.format("Unable to locate file %s for retrieving values for %s", fileName, fieldName));
-        }
     }
 }
