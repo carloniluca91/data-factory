@@ -6,6 +6,9 @@ import static it.luca.data.factory.utils.Utils.capitalize;
 
 public class ReflectionUtils {
 
+    public static final String GET = "get";
+    public static final String SET = "set";
+
     /**
      * Return the classPath location directory for given class
      * @param tClass given {@link Class}
@@ -34,7 +37,7 @@ public class ReflectionUtils {
 
     public static String getterNameFor(String fieldName) {
 
-        return "get".concat(capitalize(fieldName));
+        return GET.concat(capitalize(fieldName));
     }
 
     /**
@@ -45,6 +48,6 @@ public class ReflectionUtils {
 
     public static String setterNameFor(Field field) {
 
-        return "set".concat(capitalize(field.getName()));
+        return SET.concat(capitalize(field.getName()));
     }
 }

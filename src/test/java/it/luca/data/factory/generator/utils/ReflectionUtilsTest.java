@@ -45,13 +45,15 @@ class ReflectionUtilsTest {
     @Test
     void getterNameFor() {
 
-        assertEquals("get".concat(capitalize(FIELD_NAME)), ReflectionUtils.getterNameFor(FIELD_NAME));
+        String EXPECTED = ReflectionUtils.GET.concat(capitalize(FIELD_NAME));
+        assertEquals(EXPECTED, ReflectionUtils.getterNameFor(FIELD_NAME));
     }
 
     @Test
     void setterNameFor() {
 
-        assertEquals("set".concat(capitalize(FIELD_NAME)), ReflectionUtils.setterNameFor(field));
+        String EXPECTED = ReflectionUtils.SET.concat(capitalize(FIELD_NAME));
+        assertEquals(EXPECTED, ReflectionUtils.setterNameFor(field));
     }
 
 }

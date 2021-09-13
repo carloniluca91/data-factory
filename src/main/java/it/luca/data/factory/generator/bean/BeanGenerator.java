@@ -69,7 +69,7 @@ public class BeanGenerator {
      * @throws Exception if something fails
      */
 
-    private static <T> Object generateSetterParameter(Field field, T instance) throws Exception {
+    protected static <T> Object generateSetterParameter(Field field, T instance) throws Exception {
 
         Object setterObject;
         //noinspection unchecked
@@ -99,6 +99,10 @@ public class BeanGenerator {
                     supplier.apply();
         } else setterObject = null;
 
-        return setterObject;
+        // Maybe set to null
+        if (isPresent(setterObject) && isAnnotatedWith.test(Nullable.class)) {
+            Nullable nullable = field.getAnnotation(Nullable.class);
+            return Math.random() < nullable.probability() ? null : setterObject;
+        } else return setterObject;
     }
 }

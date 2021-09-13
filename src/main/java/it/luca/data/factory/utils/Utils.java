@@ -13,7 +13,7 @@ import static it.luca.utils.functional.Optional.isPresent;
 public class Utils {
 
     /**
-     * Capitalize a given {@link String}
+     * Capitalize a given string
      * @param string input string
      * @return input string capitalized
      */
