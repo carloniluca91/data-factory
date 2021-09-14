@@ -10,6 +10,12 @@ import java.time.temporal.ChronoUnit;
 @AllArgsConstructor
 public abstract class PlusOrMinusTime implements DataSupplier<LocalDateTime> {
 
+    public enum Signum {
+
+        MINUS, PLUS
+    }
+
+
     protected final Signum signum;
     protected final ChronoUnit chronoUnit;
     protected final Integer quantity;

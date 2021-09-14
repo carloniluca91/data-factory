@@ -1,10 +1,7 @@
 package it.luca.data.factory.generator.bean;
 
 import it.luca.data.factory.annotation.*;
-import it.luca.data.factory.generator.function.FieldValueMapper;
-import it.luca.data.factory.generator.function.RandomDateTimeSupplier;
-import it.luca.data.factory.generator.function.RandomNumberSupplier;
-import it.luca.data.factory.generator.function.RandomValueSupplier;
+import it.luca.data.factory.generator.function.*;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Constructor;
@@ -20,6 +17,11 @@ import static it.luca.utils.functional.Stream.anyMatch;
 import static it.luca.utils.functional.Stream.filter;
 
 public class BeanGenerator {
+
+    public static <T extends Annotation> boolean isAnnotatedWith(Field field, Class<T> annotationClass) {
+
+        return isPresent(field.getAnnotation(annotationClass));
+    }
 
     /**
      * Create a random instance of T
@@ -71,19 +73,18 @@ public class BeanGenerator {
 
     protected static <T> Object generateSetterParameter(Field field, T instance) throws Exception {
 
-        Object setterObject;
-        //noinspection unchecked
-        Class<T> tClass = (Class<T>) instance.getClass();
-        Predicate<Class<? extends Annotation>> isAnnotatedWith = aClass -> isPresent(field.getAnnotation(aClass));
-        if (isAnnotatedWith.test(MappedByField.class)) {
-            setterObject = new FieldValueMapper(field.getAnnotation(MappedByField.class)).map(instance, field);
-        } else if (isAnnotatedWith.test(RandomBean.class)) {
-            setterObject = generate(field.getAnnotation(RandomBean.class).beanClass());
-        } else if (isAnnotatedWith.test(RandomDateTime.class)) {
-            setterObject = new RandomDateTimeSupplier(field.getAnnotation(RandomDateTime.class)).apply();
-        } else if (isAnnotatedWith.test(RandomNumber.class)) {
-            setterObject = new RandomNumberSupplier(field.getAnnotation(RandomNumber.class)).apply();
-        } else if (isAnnotatedWith.test(RandomSequence.class)) {
+        Object setterParameter;
+        if (isAnnotatedWith(field, BoundedDateTime.class)) {
+            setterParameter = new BoundedDateTimeSupplier(field.getAnnotation(BoundedDateTime.class)).apply();
+        } else if (isAnnotatedWith(field, MappedByField.class)) {
+            setterParameter = new FieldValueMapper(field.getAnnotation(MappedByField.class)).map(instance, field);
+        } else if (isAnnotatedWith(field, RandomBean.class)) {
+            setterParameter = generate(field.getAnnotation(RandomBean.class).beanClass());
+        } else if (isAnnotatedWith(field, RandomDateTime.class)) {
+            setterParameter = new RandomDateTimeSupplier(field.getAnnotation(RandomDateTime.class)).apply();
+        } else if (isAnnotatedWith(field, RandomNumber.class)) {
+            setterParameter = new RandomNumberSupplier(field.getAnnotation(RandomNumber.class)).apply();
+        } else if (isAnnotatedWith(field, RandomSequence.class)) {
             RandomSequence randomSequence = field.getAnnotation(RandomSequence.class);
             int size = new Random().nextInt(randomSequence.maxSize()) + 1;
             List<Object> sequence = new ArrayList<>();
@@ -91,18 +92,25 @@ public class BeanGenerator {
                 sequence.add(generate(randomSequence.of()));
             }
 
-            setterObject = sequence;
-        } else if (isAnnotatedWith.test(RandomValue.class)) {
+            setterParameter = sequence;
+        } else if (isAnnotatedWith(field, RandomValue.class)) {
+            //noinspection unchecked
+            Class<T> tClass = (Class<T>) instance.getClass();
             RandomValueSupplier supplier = new RandomValueSupplier(field.getAnnotation(RandomValue.class));
-            setterObject = supplier.mustUseClasspathLocator() ?
+            setterParameter = supplier.mustUseClasspathLocator() ?
                     supplier.apply(field, tClass):
                     supplier.apply();
-        } else setterObject = null;
+        } else setterParameter = null;
+
+        return maybeSetToNull(field, setterParameter);
+    }
+
+    protected static Object maybeSetToNull(Field field, Object setterParameter) {
 
         // Maybe set to null
-        if (isPresent(setterObject) && isAnnotatedWith.test(Nullable.class)) {
+        if (isPresent(setterParameter) && isAnnotatedWith(field, Nullable.class)) {
             Nullable nullable = field.getAnnotation(Nullable.class);
-            return Math.random() < nullable.probability() ? null : setterObject;
-        } else return setterObject;
+            return Math.random() < nullable.probability() ? null : setterParameter;
+        } else return setterParameter;
     }
 }
