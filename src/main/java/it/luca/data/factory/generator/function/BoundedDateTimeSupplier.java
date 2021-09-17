@@ -3,7 +3,7 @@ package it.luca.data.factory.generator.function;
 import it.luca.data.factory.annotation.BoundedDateTime;
 
 import java.time.LocalDateTime;
-import java.time.ZoneOffset;
+import java.time.ZoneId;
 import java.time.temporal.ChronoUnit;
 import java.util.NoSuchElementException;
 import java.util.function.Function;
@@ -11,6 +11,8 @@ import java.util.function.Function;
 import static it.luca.utils.time.Supplier.now;
 
 public class BoundedDateTimeSupplier extends DataAnnotationSupplier<BoundedDateTime, LocalDateTime> {
+
+    public static final ZoneId DEFAULT_ZONE_ID = ZoneId.systemDefault();
 
     public BoundedDateTimeSupplier(BoundedDateTime annotation) {
         super(annotation);
@@ -35,7 +37,7 @@ public class BoundedDateTimeSupplier extends DataAnnotationSupplier<BoundedDateT
         };
 
         Function<LocalDateTime, Long> toEpochSecond = l ->
-                l.toEpochSecond(ZoneOffset.of(ZoneOffset.systemDefault().getId()));
+                l.atZone(DEFAULT_ZONE_ID).toEpochSecond();
 
         LocalDateTime lower = fromBound.apply(lowerBound);
         long deltaInSeconds = fromBound.andThen(toEpochSecond).apply(upperBound) - toEpochSecond.apply(lower);
