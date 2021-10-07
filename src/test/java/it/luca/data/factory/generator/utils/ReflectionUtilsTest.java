@@ -25,21 +25,14 @@ class ReflectionUtilsTest {
     }
 
     @Test
-    void getClasspathForClass() {
-
-        String EXPECTED = String.join("/", CLASS_PATH_PIECES);
-        assertEquals(EXPECTED, ReflectionUtils.getClasspathForClass(clazz));
-    }
-
-    @Test
-    void getFileNameForFieldOfClass() {
+    void getClassPathFileLocation() {
 
         String EXPECTED = String.join("/", CLASS_PATH_PIECES)
                 .concat("/")
                 .concat(FIELD_NAME)
                 .concat(".txt");
 
-        assertEquals(EXPECTED, ReflectionUtils.getFileNameForFieldOfClass(field, clazz));
+        assertEquals(EXPECTED, ReflectionUtils.getClassPathFileLocation(field, clazz));
     }
 
     @Test

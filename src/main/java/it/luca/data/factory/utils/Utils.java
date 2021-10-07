@@ -1,14 +1,12 @@
 package it.luca.data.factory.utils;
 
 import java.io.BufferedReader;
-import java.io.FileNotFoundException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
-
-import static it.luca.utils.functional.Optional.isPresent;
 
 public class Utils {
 
@@ -28,18 +26,16 @@ public class Utils {
      * Load a file from classPath and return all of its lines
      * @param fileName name of file
      * @return {@link List} of strings
-     * @throws FileNotFoundException if given fileName is not found
      */
 
-    public static List<String> getLinesOfFile(String fileName) throws FileNotFoundException {
+    public static List<String> getLinesOfFile(String fileName) {
 
-        InputStream stream = Utils.class.getClassLoader().getResourceAsStream(fileName);
-        if (isPresent(stream)) {
-            //noinspection ConstantConditions
-            return new BufferedReader(new InputStreamReader(stream, StandardCharsets.UTF_8))
-                    .lines().collect(Collectors.toList());
-        } else {
-            throw new FileNotFoundException(String.format("Unable to locate file %s along classPath", fileName));
-        }
+        InputStream stream = Objects.requireNonNull(
+                Utils.class.getClassLoader().getResourceAsStream(fileName),
+                String.format("Unable to locate file %s along classPath", fileName));
+
+        return new BufferedReader(new InputStreamReader(stream, StandardCharsets.UTF_8))
+                .lines()
+                .collect(Collectors.toList());
     }
 }

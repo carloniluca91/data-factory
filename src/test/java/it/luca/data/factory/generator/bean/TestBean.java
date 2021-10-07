@@ -14,6 +14,9 @@ public class TestBean {
     @RandomValue(useClasspathLocator = true)
     private String codCampo;
 
+    @RandomValue(values = {"Y", "N"})
+    private String flag;
+
     @MappedByField(fieldName = "codCampo")
     private String nomeCampo;
 

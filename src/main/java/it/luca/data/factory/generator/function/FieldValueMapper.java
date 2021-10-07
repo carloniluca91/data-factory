@@ -10,7 +10,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static it.luca.data.factory.generator.utils.ReflectionUtils.getFileNameForFieldOfClass;
+import static it.luca.data.factory.generator.utils.ReflectionUtils.getClassPathFileLocation;
 import static it.luca.data.factory.generator.utils.ReflectionUtils.getterNameFor;
 import static it.luca.data.factory.utils.Utils.getLinesOfFile;
 import static it.luca.utils.functional.Optional.isPresent;
@@ -30,7 +30,7 @@ public class FieldValueMapper {
 
             // Build a map whose keys are all of possible values of mapping field
             Map<String, String> valueMap = new HashMap<>();
-            List<String> mappedFieldsFileLines = getLinesOfFile(getFileNameForFieldOfClass(field, instance.getClass()));
+            List<String> mappedFieldsFileLines = getLinesOfFile(getClassPathFileLocation(field, instance.getClass()));
             mappedFieldsFileLines.forEach(s -> {
 
                 List<String> entries = Arrays.asList(s.split(" -> "));
